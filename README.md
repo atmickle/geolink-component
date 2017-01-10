@@ -13,19 +13,19 @@ Vocabularies: http://schema.geolink.org/voc/index.html
 
 Download this repo include the following in your page HTML.
 
-<head>
+'<head>
 ...
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" crossorigin="anonymous"></script>
   <script src="http://glcomponents.tech/components/glperson-element/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="components/gldeployment.html" />
 ...
-</head>
+</head>'
 
-<body>
+'<body>
 ...
   <gldeployment-element params='{"host": "GeoLink", "hosturl":"http://geolink.org", "url": "http://lod.bco-dmo.org/geolink/id/deployment/616332", "label": "AT11-07"}’/>
 ...
-</body>
+</body>'
 
 As indicated the first three lines appear in <head> and the last line appears in <body> where you want the GeoLink content to appear. The URL should be the URI of the cruise that you want to retrieve. 
 
