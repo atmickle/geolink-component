@@ -29,7 +29,7 @@ Download this repo include the following in your page HTML.
 </body>
 ~~~~
 
-As indicated the first three lines appear in <head> and the last line appears in <body> where you want the GeoLink content to appear. The URL should be the URI of the cruise that you want to retrieve. 
+As indicated the first three lines appear in ```<head>``` and the last line appears in ```<body>``` where you want the GeoLink content to appear. The URL should be the URI of the cruise that you want to retrieve. 
 
 More about GLComponents: http://glcomponents.tech/
 
