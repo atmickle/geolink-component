@@ -1,0 +1,215 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <glperson-element></glperson-element>
+
+@demo
+-->
+<dom-module id="gldeployment-element">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" crossorigin="anonymous"></script>
+    <link rel="import" href="http://glcomponents.tech/components/glperson-element/bower_components/polymer/polymer.html">
+    <link rel="import" href="http://glcomponents.tech/components/glperson-element/bower_components/iron-ajax/iron-ajax.html">
+    <link rel="import" href="http://glcomponents.tech/components/glperson-element/bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
+    <!-- Material Design Light -->
+    <!--<link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.indigo-pink.min.css"> -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+
+  <style is="custom-style">
+    iron-overlay-backdrop {
+      --iron-overlay-backdrop-opacity: 0.9;
+      --iron-overlay-backdrop-background-color: #222;
+    }
+  </style>
+
+    <template>
+        <iron-ajax id="deployment"
+                   auto
+                   url="http://geolink.bco-dmo.org/sparql"
+                   content-type="application/x-www-form-urlencoded"
+                   method="POST"
+                   body='{{getPersonQuery()}}'
+                   handle-as="json"
+                   on-response="handlePersonResponse"
+                   headers='{"Accept": "application/sparql-results+json"}'
+                   debounce-duration="300"
+                   last-response="{{people}}"></iron-ajax>
+
+
+     <!-- set display false for a surrounding div if the ajax response is empty -->
+
+     <div class="container-fluid"  style="margin:10px;">
+       <div class="row" >
+         <div class="cols-md-6">
+           <img style="margin:5px;width:75px" src="http://glcomponents.tech/components/glperson-element/images/eclogo.png">
+           <h4 style="margin:5px"><a target="_blank" href="{{params.hosturl}}">{{params.host}}</a> Resource Information for:
+             <a target="_blank" href="{{params.url}}">{{params.label}}</a>
+           </h4>
+           <h3>People</h3>
+           <template is="dom-repeat" items="{{cruise_people}}">
+             <table style="margin:10px;width:80%" class="table table-condensed table-hover">
+               <tr><td><strong><a target="_blank" href="[[item.person.value]]">[[item.person_full_name.value]]</a></strong> ([[item.role.value]])</td></tr>
+             </table>
+           </template>
+          </div>
+        </div>
+      </div>
+    </template>
+  <script>
+    Polymer({
+
+        is: 'gldeployment-element',
+
+        properties: {
+            cruise_people: {
+              type: Array,
+              value: function() { return []; },
+              notify: true
+            },
+            /**
+             * `fancy` indicates that the element should don a monocle and tophat,
+             * while checking its pocket watch.
+             */
+            fancy: Boolean,
+
+            /**
+             * Describes the author of the element, but is really just an excuse to
+             * show off JSDoc annotations.
+             *
+             * @type {{name: string, image: string}}
+             */
+            params: {
+                type: Object,
+                // Use `value` to provides a default value for a property, by setting it
+                // on your element's prototype.
+                //
+                // If you provide a function, as we do here, Polymer will call that
+                // _per element instance_.
+                //
+                // We do that to ensure that each element gets its own copy of the
+                // value, rather than having it shared across all instances (via the
+                // prototype).
+                value: function() {
+                    return {
+                        label: 'Local Deployment Name',
+                        host: 'Example Hosting',
+                        hosturl: 'http://opencoredata.org',
+                        url: 'http://opencoredata.org/id/dataset/650f47bb-9715-4f58-be51-0fab02af1b68',
+                    };
+                }
+            },
+        },
+
+        // Element Lifecycle
+
+        ready: function() {
+            // `ready` is called after all elements have been configured, but
+            // propagates bottom-up. This element's children are ready, but parents
+            // are not.
+            //
+            // This is the point where you should make modifications to the DOM (when
+            // necessary), or kick off any processes the element wants to perform.
+        },
+
+        attached: function() {
+            // `attached` fires once the element and its parents have been inserted
+            // into a document.
+            //
+            // This is a good place to perform any work related to your element's
+            // visual state or active behavior (measuring sizes, beginning animations,
+            // loading resources, etc).
+            this.cruise_people = [];
+        },
+
+        detached: function() {
+            // The analog to `attached`, `detached` fires when the element has been
+            // removed from a document.
+            //
+            // Use this to clean up anything you did in `attached`.
+        },
+
+        // Element Behavior
+
+        /**
+         * Get the SPARQL endpoint query string
+         */
+        getSPARQLRequestParams: function(query) {
+          var qs = "format=application%2Fsparql-results%2Bjson&timeout=0&query=" + encodeURIComponent(query);
+          return qs;
+        },
+
+        handlePersonResponse: function(response) {
+          var data = response.detail.response.results.bindings;
+          var matches = [];
+          $.each(data, function (index, person) {
+            var match_uri = person.match.value;
+            if (match_uri in matches) {
+              data.splice(index, 1);
+            }
+            else {
+              matches[match_uri] = person;
+            }
+          });
+
+          this.cruise_people = data;
+        },
+
+        /**
+         * Get the Award SPARQL query
+         */
+        getPersonQuery: function() {
+          var targetURI = $.parseJSON($(this).attr('params')).url;
+          var query = "PREFIX gl: <http://schema.geolink.org/1.0/base/main#> " +
+          "SELECT DISTINCT ?cruise ?role ?person ?match ?id_value ?id_scheme ?id_uri ?person_full_name ?email_address " +
+          "WHERE { " +
+            "{ ?cruise a gl:Cruise . ?person ?role ?cruise . ?person a gl:Person . " +
+              "{ SELECT DISTINCT ?cruise " +
+                "WHERE { " +
+                  "VALUES ?target {<"+targetURI+">} " +
+                  "{ ?cruise owl:sameAs ?target . } " +
+                  "UNION { ?target owl:sameAs ?cruise . } " +
+                  "UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . } " +
+                  "UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } " +
+                  "UNION { ?cruise a gl:Cruise . FILTER (?cruise = ?target) } " +
+                "} } " +
+            "} UNION { " +
+              "?cruise a gl:Cruise . ?cruise ?role ?person . ?person a gl:Person . " +
+              "{ SELECT DISTINCT ?cruise " +
+                "WHERE { " +
+                  "VALUES ?target {<"+targetURI+">} " +
+                  "{ ?cruise owl:sameAs ?target . } " +
+                  "UNION { ?target owl:sameAs ?cruise . } " +
+                  "UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?cruise . } " +
+                  "UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } " +
+                  "UNION { ?cruise a gl:Cruise . FILTER (?cruise = ?target) } " +
+                "} } " +
+            "} " +
+            "FILTER (regex(str(?role), 'http://schema.geolink.org/1.0/base/main#','i')) " +
+            "OPTIONAL { ?person gl:hasIdentifier ?identifier . ?identifier gl:hasIdentifierValue ?id_value . " +
+              "OPTIONAL { ?identifier gl:hasIdentifierScheme ?id_scheme . } " +
+              "OPTIONAL { ?identifier gl:hasIdentifierResolveURI ?id_uri . } " +
+            "} " +
+            "OPTIONAL { ?person owl:sameAs ?match . ?match a gl:Person . } " +
+            "OPTIONAL { ?person gl:hasFullName ?person_full_name . } " +
+            "OPTIONAL { ?person gl:hasEmailAddress ?email_address . }" +
+            "}";
+          return this.getSPARQLRequestParams(query);
+        }
+    });
+  </script>
+</dom-module>
