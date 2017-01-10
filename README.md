@@ -1,7 +1,6 @@
 # GeoLink
 
-GeoLink is a shared language for repositories that house geoscience metadata, science data, and publications related to the same people, projects, and activities. to share the wealth of information they have trapped in these records.
-These repositories are run by many different organizations, with different needs, budgets, priorities, and technologies.  
+GeoLink is a shared language for repositories that house geoscience metadata, science data, and publications related to the same people, projects, and activities
 By talking to each other, we have a much better picture of our data in the context of geoscience. To achieve this, GeoLink partners are using Linked Data, a rapidly adopted, open source technology that sits on top of our content systems. Repositories can create RDF translations for different purposes and different communities. 
 
 Project Site: http://www.geolink.org
