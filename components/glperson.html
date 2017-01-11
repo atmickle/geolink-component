@@ -239,11 +239,26 @@ Example:
           var qs = "format=application%2Fsparql-results%2Bjson&timeout=0&query=" + encodeURIComponent(query);
           return qs;
         },
-
-        getTargetURIFromParams: function() {
-          return $.parseJSON($(this).attr('params')).url;
+        
+        getParam: function(parameter) {
+          return $.parseJSON($(this).attr('params'))[parameter];
         },
-
+        getComponentQueryType: function() {
+          var type = getParam('type');
+          if (undefined == type) {
+            type = 'URI';
+          }
+          return type;
+        },
+        getTargetURIFromParams: function() {
+          return getParam('url');
+        },
+        getPidSchemeFromParams: function() {
+          return getParam('id_scheme');
+        },
+        getPidValueFromParams: function() {
+          return getParam('id_value');
+        }, 
         getPublicationName: function(publication, index) {
           var name = this.indexCounter(index) + '. ';
           var url = publication.publication.value;
@@ -256,17 +271,37 @@ Example:
         getPublicationAbstract: function(publication) {
           return (publication.abstract && publication.abstract.value.trim()) ? publication.abstract.value : '';
         },
-        getPublicationsQuery: function() {
-          var targetURI = this.getTargetURIFromParams();
+        getPublicationsQuery: function () {
+          var queryType = this.getCOmponentQueryType();
+            
           var query = "PREFIX gl: <http://schema.geolink.org/1.0/base/main#> " +
-          "SELECT DISTINCT ?publication ?type ?url ?title ?abstract " +
+          "SELECT DISTINCT ?publication ?type ?url ?title ?abstract ?document_role " +
           "WHERE { " +
-            "?publication a gl:Document . ?publication gl:hasAuthor ?person . ?person a gl:Person ." +
+            "?publication a gl:Document . ?publication ?document_role ?person . ?person a gl:Person ." +
               "{ SELECT DISTINCT ?person " +
-                "WHERE { " +
-                  "VALUES ?target {<"+targetURI+">} " +
-                  "{ ?person owl:sameAs ?target . } " +
-                  "UNION { ?target owl:sameAs ?person . } " +
+                "WHERE { ";
+          switch (queryType) {
+              case 'PID':
+                  var pidScheme = this.getPidSchemeFromParams();
+                  var pidValue - this.getPidValueFromParams();
+    
+                  query += "VALUES (?pid_scheme ?pid_value) {(<"+pidScheme+"> \""+pidValue+"\")}" + 
+                        "?identifier rdf:type gl:Identifier . " +
+                        "?identifier gl:hasIdentifierScheme ?scheme . " +
+                        "?identifier gl:hasIdentifierValue ?pid_value . " +
+                        "FILTER (str(?pid_value) = ?pid) ";
+                  
+                  break;
+                  
+              case 'URI':
+              default:
+                  var targetURI = this.getTargetURIFromParams();
+                  query += "VALUES ?target {<"+targetURI+">} " +
+                      "{ ?person owl:sameAs ?target . } ";
+                  break;a
+              
+          }
+          query += "UNION { ?target owl:sameAs ?person . } " +
                   "UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } " +
                   "UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } " +
                   "UNION { ?person a gl:Person . FILTER (?person = ?target) } " +
