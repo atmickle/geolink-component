@@ -77,7 +77,7 @@ Example:
                    debounce-duration="300"></iron-ajax-->
         <iron-ajax id="publications"
                    auto
-                   url="http://geolink.bco-dmo.org/sparql"
+                   url="https://geolink.bco-dmo.org/sparql"
                    content-type="application/x-www-form-urlencoded"
                    method="POST"
                    body='{{getPublicationsQuery()}}'
@@ -244,7 +244,7 @@ Example:
           return $.parseJSON($(this).attr('params'))[parameter];
         },
         getComponentQueryType: function() {
-          var type = getParam('type');
+          var type = this.getParam('type');
           if (undefined == type) {
             type = 'URI';
           }
