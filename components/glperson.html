@@ -283,7 +283,7 @@ Example:
           switch (queryType) {
               case 'PID':
                   var pidScheme = this.getPidSchemeFromParams();
-                  var pidValue - this.getPidValueFromParams();
+                  var pidValue = this.getPidValueFromParams();
     
                   query += "VALUES (?pid_scheme ?pid_value) {(<"+pidScheme+"> \""+pidValue+"\")}" + 
                         "?identifier rdf:type gl:Identifier . " +
