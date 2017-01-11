@@ -55,7 +55,7 @@ Example:
   </style>
 
     <template>
-        <iron-ajax id="awards"
+        <!--iron-ajax id="awards"
                    auto
                    url="http://geolink.bco-dmo.org/sparql"
                    content-type="application/x-www-form-urlencoded"
@@ -74,7 +74,7 @@ Example:
                    on-response="handleCruiseInfoResponse"
                    handle-as="json"
                    headers='{"Accept": "application/sparql-results+json"}'
-                   debounce-duration="300"></iron-ajax>
+                   debounce-duration="300"></iron-ajax-->
         <iron-ajax id="publications"
                    auto
                    url="http://geolink.bco-dmo.org/sparql"
@@ -92,11 +92,11 @@ Example:
      <div class="container-fluid" style="margin:10px;">
        <div class="row" >
          <div class="cols-md-6">
-           <img style="margin:5px;width:75px" src="http://glcomponents.tech/components/glperson-element/images/eclogo.png">
+           <img style="margin:5px;width:75px" src="//glcomponents.tech/components/glperson-element/images/eclogo.png">
            <h4 style="margin:5px"><a target="_blank" href="{{params.hosturl}}">{{params.host}}</a> Resource Information for:
              <a target="_blank" href="{{params.url}}">{{params.label}}</a>
            </h4>
-           <template is="dom-if" if="{{showTemplate(deployments)}}">
+           <!--template is="dom-if" if="{{showTemplate(deployments)}}">
              <div id="geolink-people-cruises">
                <h3 class="geolink-section-expanded" on-tap="handleTap">Cruises ([[deployments.length]])</h3>
                <table style="margin:10px;width:100%" class="table table-condensed table-hover">
@@ -106,7 +106,7 @@ Example:
                </template>
                </table>
              </div>
-          </template>
+          </template-->
           <template is="dom-if" if="{{showTemplate(pubs.results.bindings)}}">
              <div id="geolink-people-publications">
                <h3 class="geolink-section-expanded" on-tap="handleTap">Publications ([[pubs.results.bindings.length]])</h3>
@@ -118,7 +118,7 @@ Example:
                </table>
             </div>
           </template>
-           <template is="dom-if" if="{{showTemplate(awards.results.bindings)}}">
+           <!--template is="dom-if" if="{{showTemplate(awards.results.bindings)}}">
              <div id="geolink-people-awards">
                <h3 class="geolink-section-expanded" on-tap="handleTap">Awards ([[awards.results.bindings.length]])</h3>
                <table style="margin:10px;width:100%" class="table table-condensed table-hover">
@@ -128,7 +128,7 @@ Example:
                </template>
                </table>
              </div>
-          </template>
+          </template-->
         </div>
       </div>
     </div>
@@ -259,6 +259,31 @@ Example:
         getPidValueFromParams: function() {
           return getParam('id_value');
         }, 
+        getPersonSPARQLFragment: function() {
+          var queryType = this.getComponentQueryType();
+          switch (queryType) {
+              case 'PID':
+                  var pidScheme = this.getPidSchemeFromParams();
+                  var pidValue = this.getPidValueFromParams();
+    
+                  return "VALUES (?pid_scheme ?pid_value) {(<"+pidScheme+"> \""+pidValue+"\")}" + 
+                        "?identifier rdf:type gl:Identifier . " +
+                        "?identifier gl:hasIdentifierScheme ?scheme . " +
+                        "?identifier gl:hasIdentifierValue ?pid_value . " +
+                        "FILTER (str(?pid_value) = ?pid) " +
+                        "?person gl:hasIdentifier ?identifier";
+                  
+                  break;
+                  
+              case 'URI':
+              default:
+                  var targetURI = this.getTargetURIFromParams();
+                  return "VALUES ?target {<"+targetURI+">} " +
+                      "{ ?person owl:sameAs ?target . } ";
+                  break;
+              
+          }
+        },
         getPublicationName: function(publication, index) {
           var name = this.indexCounter(index) + '. ';
           var url = publication.publication.value;
@@ -272,36 +297,16 @@ Example:
           return (publication.abstract && publication.abstract.value.trim()) ? publication.abstract.value : '';
         },
         getPublicationsQuery: function () {
-          var queryType = this.getCOmponentQueryType();
+          
             
           var query = "PREFIX gl: <http://schema.geolink.org/1.0/base/main#> " +
           "SELECT DISTINCT ?publication ?type ?url ?title ?abstract ?document_role " +
           "WHERE { " +
             "?publication a gl:Document . ?publication ?document_role ?person . ?person a gl:Person ." +
               "{ SELECT DISTINCT ?person " +
-                "WHERE { ";
-          switch (queryType) {
-              case 'PID':
-                  var pidScheme = this.getPidSchemeFromParams();
-                  var pidValue = this.getPidValueFromParams();
-    
-                  query += "VALUES (?pid_scheme ?pid_value) {(<"+pidScheme+"> \""+pidValue+"\")}" + 
-                        "?identifier rdf:type gl:Identifier . " +
-                        "?identifier gl:hasIdentifierScheme ?scheme . " +
-                        "?identifier gl:hasIdentifierValue ?pid_value . " +
-                        "FILTER (str(?pid_value) = ?pid) ";
-                  
-                  break;
-                  
-              case 'URI':
-              default:
-                  var targetURI = this.getTargetURIFromParams();
-                  query += "VALUES ?target {<"+targetURI+">} " +
-                      "{ ?person owl:sameAs ?target . } ";
-                  break;a
-              
-          }
-          query += "UNION { ?target owl:sameAs ?person . } " +
+                "WHERE { " +
+                this.getPersonSPARQLFragment() +
+           "UNION { ?target owl:sameAs ?person . } " +
                   "UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } " +
                   "UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } " +
                   "UNION { ?person a gl:Person . FILTER (?person = ?target) } " +
@@ -311,6 +316,7 @@ Example:
             "OPTIONAL { ?publication gl:hasDocumentType ?type . } " +
             "OPTIONAL { ?publication rdfs:seeAlso ?url . } " +
           "}";
+          console.log(query);
           return this.getSPARQLRequestParams(query);
         },
 
