@@ -11,6 +11,8 @@ By talking to each other, we have a much better picture of our data in the conte
 ##GeoLink Knowledgebase Component Example
 ###Get GeoLink content for given cruise URI
 
+*Also see https://github.com/atmickle/geolink-cruise-search *
+
 *Contributed by Doug Fils and Adam Shepherd*
 
 Download this repo include the following in your page HTML.
