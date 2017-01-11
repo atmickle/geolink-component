@@ -251,13 +251,13 @@ Example:
           return type;
         },
         getTargetURIFromParams: function() {
-          return getParam('url');
+          return this.getParam('url');
         },
         getPidSchemeFromParams: function() {
-          return getParam('id_scheme');
+          return this.getParam('id_scheme');
         },
         getPidValueFromParams: function() {
-          return getParam('id_value');
+          return this.getParam('id_value');
         }, 
         getPersonSPARQLFragment: function() {
           var queryType = this.getComponentQueryType();
