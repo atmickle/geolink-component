@@ -307,8 +307,9 @@ Example:
                 "UNION { ?person a gl:Person . FILTER (?person = ?target) } " +
                 this.getPersonSPARQLFragment() +
               "} } " +
-            "VALUES ?pub_type { gl:Document gl:DigitalObject } ?publication a ?pub_type . " +
-            "?publication ?document_role ?person ." +
+            " ?publication a gl:Document . " +
+            "OPTIONAL { ?publication ?document_role ?person .} " +
+            "OPTIONAL { ?publication gl:hasPart ?digital_object . ?digital_object a gl:DigitalObject . ?publication ?document_role ?person .} " +
             "OPTIONAL { ?publication gl:hasAbstract ?abstract . } " +
             "OPTIONAL { ?publication gl:hasTitle ?title . } " +
             "OPTIONAL { ?publication gl:hasDocumentType ?type . } " +
