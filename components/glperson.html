@@ -284,6 +284,7 @@ Example:
         },
         getPublicationName: function(publication, index) {
           var name = this.indexCounter(index) + '. ';
+          console.log(publication);
           var url = publication.publication.value;
           if (publication.url && publication.url.value.trim()) {
             url = publication.url.value;
