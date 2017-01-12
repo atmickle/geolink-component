@@ -284,14 +284,12 @@ Example:
         },
         getPublicationName: function(publication, index) {
           var name = this.indexCounter(index) + '. ';
-          console.log(publication);
           var url = publication.publication.value;
           if (publication.url && publication.url.value.trim()) {
             url = publication.url.value;
           }
           var name = (publication.title && publication.title.value) ? publication.title.value : url;
-          name += '<a href="' + url + '" target="_blank">' + name + '</a>';
-          return name;
+          return '<a href="' + url + '" target="_blank">' + name + '</a>';
         },
         getPublicationAbstract: function(publication) {
           return (publication.abstract && publication.abstract.value.trim()) ? publication.abstract.value : '';
