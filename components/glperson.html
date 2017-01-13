@@ -301,22 +301,13 @@ Example:
           return (publication.abstract && publication.abstract.value.trim()) ? publication.abstract.value : '';
         },
         getPublicationRole: function(publication) {
-          if (publication.pub_role && publication.pub_role.value.trim()) {
-              return '<a href="' + publication.pub_role.value + '">' + publication.pub_role.value + '</a>';
-              
-          }
-          else if (publication.digital_object_role && publication.digital_object_role.value.trim()) {
-              var role = '<a href="' + publication.digital_object_role.value + '">' + publication.digital_object_role.value + '</a>';
-              if (publication.digital_object && publication.digital_object.value.trim()) {
-                role += ' for <a href="' + publication.digital_object.value + '">' + publication.digital_object.value + '</a>';
-              }
-              return role;
-          }
-          return '';
+          return (publication.role && publication.role.value.trim()) 
+            ? '<a href="' + publication.role.value + '">' + publication.role.value + '</a>'
+            : '';
         },
         getPublicationsQuery: function () {
           var query = "PREFIX gl: <http://schema.geolink.org/1.0/base/main#> " +
-          "SELECT DISTINCT ?publication ?digital_object ?pub_role ?digital_object_role ?title ?alt_title ?pub_type " +
+          "SELECT DISTINCT ?publication ?role ?title ?alt_title ?pub_type " +
           "WHERE { " +
             "?person a gl:Person . " +            
             "{ SELECT DISTINCT ?person " +
@@ -330,9 +321,9 @@ Example:
             "?publication a gl:Document . " +
             "{ ?publication gl:hasPart ?digital_object . " +
               "?digital_object a gl:DigitalObject .  " +
-              "?digital_object ?pub_role ?person . " +
+              "?digital_object ?role ?person . " +
             "} UNION { " +
-              "?publication ?digital_object_role ?person . " +
+              "?publication ?role ?person . " +
             "} " +
             "OPTIONAL { ?publication gl:hasTitle ?title . } " +
             "OPTIONAL { ?publication gl:title ?alt_title . } " +
