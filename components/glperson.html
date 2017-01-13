@@ -113,7 +113,7 @@ Example:
                <table style="margin:10px;width:100%" class="table table-condensed table-hover">
                  <tr><th>Publication</th><th>Role</th></tr>
                <template is="dom-repeat" items="[[pubs.results.bindings]]">
-                 <tr><td inner-h-t-m-l="{{getPublicationName(item, index)}}" style="width: 30%"></td><td inner-h-t-m-l="{{getPublicationRole(item)}}"></td></tr>
+                 <tr><td inner-h-t-m-l="{{getPublicationName(item, index)}}" style="width: 80%"></td><td inner-h-t-m-l="{{getPublicationRole(item)}}"></td></tr>
                </template>
                </table>
             </div>
@@ -329,7 +329,6 @@ Example:
             "OPTIONAL { ?publication gl:title ?alt_title . } " +
             "OPTIONAL { ?publication gl:hasDocumentType ?pub_type . } " +
           "}";
-          console.log(query);
           return this.getSPARQLRequestParams(query);
         },
 
