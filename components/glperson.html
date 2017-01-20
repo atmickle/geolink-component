@@ -111,9 +111,9 @@ Example:
              <div id="geolink-people-publications">
                <h3 class="geolink-section-expanded" on-tap="handleTap">Publications ([[pubs.results.bindings.length]])</h3>
                <table style="margin:10px;width:100%" class="table table-condensed table-hover">
-                 <tr><th>Publication</th><th>Abstract</th></tr>
+                 <tr><th>Publication</th><th>Role</th></tr>
                <template is="dom-repeat" items="[[pubs.results.bindings]]">
-                 <tr><td inner-h-t-m-l="{{getPublicationName(item, index)}}" style="width: 30%"></td><td inner-h-t-m-l="{{getPublicationAbstract(item)}}"></td></tr>
+                 <tr><td inner-h-t-m-l="{{getPublicationName(item, index)}}" style="width: 80%"></td><td inner-h-t-m-l="{{getPublicationRole(item)}}"></td></tr>
                </template>
                </table>
             </div>
@@ -266,12 +266,10 @@ Example:
                   var pidScheme = this.getPidSchemeFromParams();
                   var pidValue = this.getPidValueFromParams();
     
-                  return "VALUES (?pid_scheme ?pid_value) {(<"+pidScheme+"> \""+pidValue+"\")}" + 
-                        "?identifier rdf:type gl:Identifier . " +
-                        "?identifier gl:hasIdentifierScheme ?scheme . " +
-                        "?identifier gl:hasIdentifierValue ?pid_value . " +
-                        "FILTER (str(?pid_value) = ?pid) " +
-                        "?person gl:hasIdentifier ?identifier";
+                  return "?target gl:hasIdentifier ?identifier . " + 
+                        "?identifier rdf:type gl:Identifier . " + 
+                        "?identifier gl:hasIdentifierScheme <"+pidScheme+"> ." +
+                        "?identifier gl:hasIdentifierValue ?pid_value . FILTER (str(?pid_value) = \""+pidValue+"\") ";                                                     ;
                   
                   break;
                   
@@ -290,33 +288,47 @@ Example:
           if (publication.url && publication.url.value.trim()) {
             url = publication.url.value;
           }
-          name += '<a href="' + url + '" target="_blank">' + publication.title.value + '</a>';
-          return name;
+          var title = (publication.title && publication.title.value.trim()) ? publication.title.value 
+                   : (publication.alt_title && publication.alt_title.value.trim()) ? publication.alt_title.value 
+                   : url;
+          var type = (publication.pub_type && publication.pub_type.value.trim()) ? publication.pub_type.value : '';
+          return '<a href="' + url + '" target="_blank">' + title + '</a>' + (type ? " (" + type + ")" : '');
+        },
+        getPublicationType: function(publication) {
+          return (publication.type && publication.type.value.trim()) ? publication.type.value : '';
         },
         getPublicationAbstract: function(publication) {
           return (publication.abstract && publication.abstract.value.trim()) ? publication.abstract.value : '';
         },
+        getPublicationRole: function(publication) {
+          return (publication.role && publication.role.value.trim()) 
+            ? '<a href="' + publication.role.value + '">' + publication.role.value + '</a>'
+            : '';
+        },
         getPublicationsQuery: function () {
-          
-            
           var query = "PREFIX gl: <http://schema.geolink.org/1.0/base/main#> " +
-          "SELECT DISTINCT ?publication ?type ?url ?title ?abstract ?document_role " +
+          "SELECT DISTINCT ?publication ?role ?title ?alt_title ?pub_type " +
           "WHERE { " +
-            "?publication a gl:Document . ?publication ?document_role ?person . ?person a gl:Person ." +
-              "{ SELECT DISTINCT ?person " +
-                "WHERE { " +
+            "?person a gl:Person . " +            
+            "{ SELECT DISTINCT ?person " +
+              "WHERE { " +
+                "{ ?target owl:sameAs ?person . } " +
+                "UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } " +
+                "UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } " +
+                "UNION { ?person a gl:Person . FILTER (?person = ?target) } " +
                 this.getPersonSPARQLFragment() +
-           "UNION { ?target owl:sameAs ?person . } " +
-                  "UNION { ?target owl:sameAs ?match . ?match owl:sameAs ?person . } " +
-                  "UNION { ?target owl:sameAs ?match . ?person owl:sameAs ?match . } " +
-                  "UNION { ?person a gl:Person . FILTER (?person = ?target) } " +
-                "} } " +
-            "OPTIONAL { ?publication gl:hasAbstract ?abstract . } " +
+              "} } " +
+            "?publication a gl:Document . " +
+            "{ ?publication gl:hasPart ?digital_object . " +
+              "?digital_object a gl:DigitalObject .  " +
+              "?digital_object ?role ?person . " +
+            "} UNION { " +
+              "?publication ?role ?person . " +
+            "} " +
             "OPTIONAL { ?publication gl:hasTitle ?title . } " +
-            "OPTIONAL { ?publication gl:hasDocumentType ?type . } " +
-            "OPTIONAL { ?publication rdfs:seeAlso ?url . } " +
+            "OPTIONAL { ?publication gl:title ?alt_title . } " +
+            "OPTIONAL { ?publication gl:hasDocumentType ?pub_type . } " +
           "}";
-          console.log(query);
           return this.getSPARQLRequestParams(query);
         },
 
